@@ -9,7 +9,7 @@
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="/home">Home</a></li>
-                    <li class="breadcrumb-item"><a href="/users">Users</a></li>
+                    <li class="breadcrumb-item"><a href="/roles">Roles</a></li>
                     <li class="breadcrumb-item active">Create</li>
                 </ol>
             </div>
@@ -26,7 +26,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 >
-                            Create New User
+                            Create New Role
                         </h3>
                     </div>
                     <div class="card-body">
@@ -41,7 +41,7 @@
                           </div>
                         @endif                        
 
-                        {!! Form::open(array('route' => 'users.store','method'=>'POST')) !!}
+                        {!! Form::open(array('route' => 'roles.store','method'=>'POST')) !!}
 
                         <div class="form-group">
                             <label for="name">Name</label>
@@ -49,19 +49,13 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="email">Email Address</label>
-                            {!! Form::text('email', null, array('placeholder' => 'Name','class' => 'form-control')) !!}
-                        </div>
-
-                        <div class="form-group">
-                            <label for="email">Password</label>
-                            {!! Form::password('password', array('placeholder' => 'Password','class' => 'form-control')) !!}
-                        </div>
-
-                        <div class="form-group">
-                            <label for="email">Role</label>
-                            {!! Form::select('roles[]', $roles,[], array('class' => 'form-control')) !!}
-
+                            <label for="email">Permissions</label>
+                            <br />
+                            @foreach($permission as $value)
+                                <label>{{ Form::checkbox('permission[]', $value->id, false, array('class' => 'name')) }}
+                                {{ $value->name }}</label>
+                            <br/>
+                            @endforeach
                         </div>
 
                         <div class="form-group">

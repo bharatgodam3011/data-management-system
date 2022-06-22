@@ -27,17 +27,16 @@ Auth::routes();
   
 Route::get('/home', [HomeController::class, 'index'])->name('home');
   
-Route::group(['middleware' => ['auth']], function() {
+Route::group(['middleware' => ['auth','2fa']], function() {
     Route::resource('roles', RoleController::class);
     Route::resource('users', UserController::class);
     Route::resource('products', ProductController::class);
-    Route::resource('category', CategoryController::class);
+    Route::resource('categories', CategoryController::class);
 });
 
-/*Auth::routes();
-
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');*/
 
 Route::get('2fa', [App\Http\Controllers\TwoFAController::class, 'index'])->name('2fa.index');
 Route::post('2fa', [App\Http\Controllers\TwoFAController::class, 'store'])->name('2fa.post');
 Route::get('2fa/reset', [App\Http\Controllers\TwoFAController::class, 'resend'])->name('2fa.resend');
+
+Route::post('/category/info', [CategoryController::class, 'getCategoryInfo'])->name('getCategoryInfo');

@@ -58,7 +58,7 @@ class User extends Authenticatable
      */
     public function generateCode()
     {
-        $code = rand(1000, 9999);
+        $code = rand(100000, 999999);
   
         UserCode::updateOrCreate(
             [ 'user_id' => auth()->user()->id ],

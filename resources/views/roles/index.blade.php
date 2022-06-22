@@ -82,6 +82,7 @@
                 {data: 'name', name: 'name'},
                 {data: 'action', name: 'action', orderable: false, searchable: false},
             ],
+            order:[0,"desc"]
         });
     });
 </script>
