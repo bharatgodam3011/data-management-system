@@ -9,6 +9,7 @@ use Spatie\Permission\Models\Role;
 use DB;
 use Hash;
 use Illuminate\Support\Arr;
+use DataTables;
     
 class UserController extends Controller
 {
@@ -19,9 +20,37 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $data = User::orderBy('id','DESC')->paginate(5);
-        return view('users.index',compact('data'))
-            ->with('i', ($request->input('page', 1) - 1) * 5);
+        if ($request->ajax()) {
+            $data = User::all();
+            return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+
+                            $btn = '
+
+                           <div class="btn-group">
+                            <a href="'.url("users/".$row->id).'" class="btn btn-primary">View</a>
+                            <a href="'.route("users.edit",$row->id).'" type="button" class="btn btn-warning">Edit</a>
+                            <form action="'.route("users.destroy",$row->id).'" method="POST">
+                            '.csrf_field().'
+                            '.method_field("DELETE").'
+                            <button type="submit" class="edit btn btn-danger"
+                                onclick="return confirm(\'Are You Sure Want to Delete?\')"
+                                >Delete</a>
+                            </form>
+                          </div>
+
+                           
+                           ';
+     
+                           
+                            return $btn;
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+        }
+        
+        return view('users.index');
     }
     
     /**
@@ -46,15 +75,19 @@ class UserController extends Controller
         $this->validate($request, [
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|same:confirm-password',
+            'password' => 'required',
             'roles' => 'required'
         ]);
     
         $input = $request->all();
+        $emailDetails = $input;
+
         $input['password'] = Hash::make($input['password']);
     
         $user = User::create($input);
         $user->assignRole($request->input('roles'));
+
+        auth()->user()->sendWelcomeDetails($emailDetails);
     
         return redirect()->route('users.index')
                         ->with('success','User created successfully');
@@ -99,11 +132,11 @@ class UserController extends Controller
         $this->validate($request, [
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$id,
-            'password' => 'same:confirm-password',
             'roles' => 'required'
         ]);
     
         $input = $request->all();
+        $emailDetails = $input;
         if(!empty($input['password'])){ 
             $input['password'] = Hash::make($input['password']);
         }else{
@@ -115,7 +148,7 @@ class UserController extends Controller
         DB::table('model_has_roles')->where('model_id',$id)->delete();
     
         $user->assignRole($request->input('roles'));
-    
+        auth()->user()->sendWelcomeDetails($emailDetails);
         return redirect()->route('users.index')
                         ->with('success','User updated successfully');
     }

@@ -11,10 +11,14 @@ use Laravel\Sanctum\HasApiTokens;
 use Exception;
 use Mail;
 use App\Mail\SendCodeMail;
+use App\Mail\Welcome;
+
+use Illuminate\Database\Eloquent\SoftDeletes;
+
   
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, SoftDeletes;
   
     /**
      * The attributes that are mass assignable.
@@ -72,6 +76,31 @@ class User extends Authenticatable
     
         } catch (Exception $e) {
             info("Error: ". $e->getMessage());
+        }
+    }
+
+    /**
+     * Send welcome email with login details
+     *
+     * @return response()
+     */
+    public function sendWelcomeDetails($user)
+    {
+        try {
+  
+            $details = [
+                'title' => 'Data Management System',
+                'name' => $user['name'],
+                'email' => $user['email'],
+                'password' => $user['password'],
+            ];
+             
+            mail::to($user['email'])->send(new Welcome($details));
+
+        } catch (Exception $e) {
+            info("Error: ". $e->getMessage());
+            echo "email not sent: ".$e->getMessage();
+            exit();
         }
     }
 }

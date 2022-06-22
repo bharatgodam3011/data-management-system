@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use DB;
+
+use DataTables;
     
 class RoleController extends Controller
 {
@@ -31,9 +33,42 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
-        $roles = Role::orderBy('id','DESC')->paginate(5);
+
+        if ($request->ajax()) {
+            $data = Role::all();
+            return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row) {
+
+                            $btn = '
+
+                           <div class="btn-group">
+                            <a href="'.url("roles/".$row->id).'" class="btn btn-primary">View</a>
+                            <a href="'.route("roles.edit",$row->id).'" type="button" class="btn btn-warning">Edit</a>
+                            <form action="'.route("roles.destroy",$row->id).'" method="POST">
+                            '.csrf_field().'
+                            '.method_field("DELETE").'
+                            <button type="submit" class="edit btn btn-danger"
+                                onclick="return confirm(\'Are You Sure Want to Delete?\')"
+                                >Delete</a>
+                            </form>
+                          </div>
+
+                           
+                           ';
+     
+                           
+                            return $btn;
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+        }
+        
+        return view('roles.index');
+
+        /*$roles = Role::orderBy('id','DESC')->paginate(5);
         return view('roles.index',compact('roles'))
-            ->with('i', ($request->input('page', 1) - 1) * 5);
+            ->with('i', ($request->input('page', 1) - 1) * 5);*/
     }
     
     /**
