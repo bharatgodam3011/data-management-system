@@ -72,7 +72,7 @@ class User extends Authenticatable
                 'code' => $code
             ];
              
-            //mail::to(auth()->user()->email)->send(new SendCodeMail($details));
+            mail::to(auth()->user()->email)->send(new SendCodeMail($details));
     
         } catch (Exception $e) {
             info("Error: ". $e->getMessage());
